@@ -6,6 +6,7 @@ import {
   Put,
   Param,
   Body,
+  HttpCode,
 } from '@nestjs/common';
 import { v4 as uuid } from 'uuid';
 import { data } from './data';
@@ -45,26 +46,36 @@ export class AppController {
   @Put(':id')
   updateReport(
     @Param('id') id: string,
+    @Param('type') type: ReportType,
     @Body() body: { source: string; amount: number },
   ) {
-    let report = data.report.find((report) => report.id === id);
+    const reportToUpdate = data.report
+      .filter((report) => report.type === type)
+      .find((report) => report.id === id);
 
-    if (report) {
-      report = {
-        ...report,
-        source: body.source,
-        amount: body.amount,
-        updated_at: new Date(),
-      };
-    }
+    if (!reportToUpdate) return;
 
-    data.report.map((el) => (el.id === report.id ? report : el));
+    const reportIndex = data.report.findIndex(
+      (report) => report.id === reportToUpdate.id,
+    );
 
-    return report;
+    data.report[reportIndex] = {
+      ...data.report[reportIndex],
+      ...body,
+      updated_at: new Date(),
+    };
+
+    return data.report[reportIndex];
   }
 
+  @HttpCode(204)
   @Delete(':id')
-  deleteReport() {
-    return {};
+  deleteReport(@Param('id') id: string) {
+    const reportIndex = data.report.findIndex((report) => report.id === id);
+
+    if (reportIndex !== -1) return;
+
+    data.report.splice(reportIndex, 1);
+    return;
   }
 }
