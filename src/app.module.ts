@@ -5,9 +5,10 @@ import { AppService } from './app.service';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ClassSerializerInterceptor } from '@nestjs/common';
 import { SummaryModule } from './summary/summary.module';
+import { ReportModule } from './report/report.module';
 
 @Module({
-  imports: [SummaryModule],
+  imports: [SummaryModule, ReportModule],
   controllers: [AppController],
   providers: [
     AppService,
